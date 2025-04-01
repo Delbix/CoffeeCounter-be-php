@@ -37,7 +37,7 @@ class TransazioneService extends Db{
         } 
         
         $idTransazione = $this->conn->insert_id;
-        //TODO su altervista c'è un problema sulla tabella partecipazione.. non trova la tabella Persona(va con la p piccola)
+        //TODO non funziona questo loop!!
         foreach ( $partecipanti as $persona ){
             $stmt = $this->conn->prepare( "INSERT INTO `partecipazione` (`id_transazione`, `id_persona`) VALUES (?, ?);");
             $stmt->bind_param( "ii", $idTransazione, $persona->getID() );
