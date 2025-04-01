@@ -25,12 +25,11 @@ class TransazioneService extends Db{
      * @param String $data
      * @param Persona $pagata_da
      * @param List<Persona> $partecipanti 
-     * @return int ID della persona inserita
+     * @return int ID della transazione inserita
      */
     public function insertTransazione( $data, $pagata_da, $partecipanti ){
-        $id_pagatore = $pagata_da->getIDPersona();
         $stmt = $this->conn->prepare( "INSERT INTO `transazione` (`id_transazione`, `data`, `pagata_da`) VALUES (NULL, ?, ?);");
-        $stmt->bind_param( "si", $data, $pagata_da->getID() );
+        $stmt->bind_param( "si", $data, $pagata_da );
 
         $stmt->execute();
         if ( $stmt->error != '' ){
@@ -38,7 +37,8 @@ class TransazioneService extends Db{
         } 
         
         $idTransazione = $this->conn->insert_id;
-        foreach ( $persona as $partecipanti ){
+        //TODO su altervista c'è un problema sulla tabella partecipazione.. non trova la tabella Persona(va con la p piccola)
+        foreach ( $partecipanti as $persona ){
             $stmt = $this->conn->prepare( "INSERT INTO `partecipazione` (`id_transazione`, `id_persona`) VALUES (?, ?);");
             $stmt->bind_param( "ii", $idTransazione, $persona->getID() );
             $stmt->execute();
@@ -47,9 +47,10 @@ class TransazioneService extends Db{
             } 
         }
         
+        $stmt->close();
         return $idTransazione;
         
-        $stmt->close();
+        
     }
 
         

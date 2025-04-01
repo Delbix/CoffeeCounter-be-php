@@ -8,12 +8,12 @@ class PersonaDTO implements JsonSerializable{
     private $ha_partecipato; // int, numero di transazioni pagate
 
 
-    public function __construct( $id_persona, $nome, $cognome, $ha_pagato, $ha_parttecipato ){
+    public function __construct( $id_persona, $nome, $cognome, $ha_pagato, $ha_partecipato ){
         $this->id = $id_persona;
         $this->nome = $nome;
         $this->cognome = $cognome;
         $this->ha_pagato = $ha_pagato;
-        $this->ha_partecipato = $ha_parttecipato;
+        $this->ha_partecipato = $ha_partecipato;
     }
     
     public function jsonSerialize() {
@@ -28,11 +28,11 @@ class PersonaDTO implements JsonSerializable{
     
     // Getter e Setter
     public function getID() {
-        return $this->id_persona;
+        return $this->id;
     }
 
     public function setID($id_persona) {
-        $this->id_persona = $id_persona;
+        $this->id = $id_persona;
     }
 
     public function getNome() {

@@ -3,7 +3,11 @@
 /**
  * Classe per l'inserimento e modifia di campi a db
  * __construct( $conn )
- * insertPersona( $n_starnuti )
+ * insertPersona( $nome, $cognome )
+ * getPersone()
+ * getPersona( $id )
+ * updatePersonaGeneralita( $personaDTO )
+ * deletePersona( $id )
  */
 
 require_once 'Db.php';
@@ -41,8 +45,8 @@ class PersonaService extends Db{
     }
 
     /**
-     * 
-     * @return \ArrayObject
+     * Restituisce tutte le persona presenti in database
+     * @return \ArrayObject , lista di personaDTO
      */
     public function getPersone() {
         
@@ -65,6 +69,66 @@ class PersonaService extends Db{
 
         return $p_list; 
     }
+    
+    /**
+     * Cerca la persona con un determinato id nel database
+     * @param int $id
+     * @return \PersonaDTO|null
+     */
+    public function getPersona( $id ) {        
+        $stmt = $this->conn->prepare( "SELECT * FROM persona WHERE id_persona=?");
+        $stmt->bind_param( "i", $id );
+        $result = $stmt->get_result();
+
+        $stmt->execute();
+        if ($result->num_rows > 0) {
+            // Output data of each row
+            while($row = $result->fetch_assoc()) {
+                return new PersonaDTO( $row["id_persona"], $row["nome"], $row["cognome"], $row["ha_pagato"], $row["ha_partecipato"] );
+            }
+        } else {
+            return null;
+        }
+
+        $stmt->close();
+    }
         
+    /**
+     * Aggiorna nome e cognome di una persona
+     * @param type $personaDTO
+     * @return true se la query è andata a buon fine, false altrimenti
+     */
+    public function updatePersonaGeneralita( $personaDTO ) {
+        $stmt = $this->conn->prepare( "UPDATE persona SET nome=?, cognome=? WHERE id_persona=?");
+        $stmt->bind_param( "ssi", $personaDTO->getNome(), $personaDTO->getCognome(), $personaDTO->getID() );
+        $stmt->execute();
+
+
+        if ($stmt->affected_rows > 0) {
+            return true;
+        } else {
+            return false;
+        }
+        $stmt->close();
+    }
+    
+    /**
+     * Elimina un utente
+     * @param int $id
+     * @return true se eliminato con successo, false altrimenti
+     */
+    public function deletePersona( $id ) {
+        $stmt = $this->conn->prepare( "DELETE FROM persona WHERE id_persona=?" );
+        $stmt->bind_param("i", $id);
+        $stmt->execute();
+        
+        if ($stmt->affected_rows > 0) {
+            return true;
+        } else {
+            return false;
+        }
+
+        $stmt->close();
+    }
 
 }
