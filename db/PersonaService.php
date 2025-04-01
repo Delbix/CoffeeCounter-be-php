@@ -59,7 +59,7 @@ class PersonaService extends Db{
                 $p_list->append($persona);
             }
         }
-
+        
        
         $result->close();
 

@@ -32,8 +32,12 @@ if( $method == 'POST' ){
         case '/persona/elimina':
             
             break;
-        case '/db/persone' : //lista degli utenti
-            echo json_encode(readAllPersone());
+        case '/transazione' : //lista degli utenti
+            // Converti l'array associativo in un array numerico
+            //è reso necessario dal fatto che l'app android si aspetta l'array esterno come array numerico e non associativo
+            $numericArray = array_values((array)readAllPersone());
+
+            echo json_encode($numericArray);
             break;
         default :
             echo json_encode([
