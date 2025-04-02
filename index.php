@@ -67,16 +67,13 @@ function insertUpdatePersona( $data ) {
     $result = null;
     $personaDTO = new PersonaDTO( $data['id'], $data['nome'], $data['cognome'], $data['ha_pagato'], $data['ha_partecipato'] );
 
+    //se ho qualcuno con lo stesso nome e cognome, rifiuto l'inserimetno/modifica
+    if( verificaOmonimie($personaDTO) ){
+        //ID == -2 è sintomo di errore, il FE deve riconoscerlo
+        return new PersonaDTO(-2, $personaDTO->getNome(), $personaDTO->getCognome(), 0, 0);
+    }
     //caso di inserimento
     if ( $personaDTO->getID() == 0 ) {
-        //Individua le omonimie e nel caso ritorna -2
-        $persone = (array)readAllPersone(); //mi aspetto una lista di PersonaDTO
-        foreach ($persone as $next) {
-            if (strcasecmp($next->getNome(), $personaDTO->getNome() ) === 0 && strcasecmp($next->getCognome(), $personaDTO->getCognome()) === 0) {
-                // Persona già presente in archivio, il messaggio di errore viene trasmesso tramite id della persona (-2)
-                return ['id' => -2];
-            }
-        }
         $result = insertPersona($personaDTO);
     } else { // caso update
         $result = updatePersona($personaDTO);
@@ -89,9 +86,28 @@ function insertUpdatePersona( $data ) {
                 ]);
     }
     
-
     return $result;
 
+}
+
+/**
+ * Verifico che nelle persone inserite in db ce ne sia una con lo stesso nome e cognome
+ * fatta esclusione di se stessa (persona con lo stesso ID), ciò permette di modificare maiuscole e minuscole.
+ * @param PersoonaDTO $personaDTO
+ * @return true se è presente una persona omonima, false altrimenti
+ */
+function verificaOmonimie( $personaDTO ){
+    //Individua le omonimie
+    $persone = (array)readAllPersone(); //mi aspetto una lista di PersonaDTO
+    foreach ($persone as $next) {
+        //controllo se esiste un utente con lo stesso nome e cognome.
+        //elimino eventuali spazi bianchi o tabulazioni, altrimenti "Federico" != "Federico "
+        if ( $next->getID() != $personaDTO->getID() && strcasecmp( preg_replace('/\s+/', '', $next->getNome() ), preg_replace('/\s+/', '', $personaDTO->getNome() ) ) === 0 && strcasecmp( preg_replace('/\s+/', '', $next->getCognome() ), preg_replace('/\s+/', '', $personaDTO->getCognome() ) ) === 0) {
+            // Persona già presente in archivio
+            return true;
+        }
+    }
+    return false;
 }
 
 /**
