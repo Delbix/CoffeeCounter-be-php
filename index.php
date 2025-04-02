@@ -6,6 +6,11 @@ require './db/PersonaService.php';
 require './db/TransazioneService.php';
 require './db/app-init.php';
 
+/**
+ * Questo index ha la funzione di analizzare le richieste che arrivano al BE di questo progetto ed instradarle
+ * per l'inserimento a DB
+ */
+
 // Impostare il tipo di contenuto in JSON
 header("Content-Type: application/json");
 header("Access-Control-Allow-Origin: *"); //Allow any origin for CORS protocol
