@@ -21,7 +21,9 @@ $method = $_SERVER['REQUEST_METHOD'];
 //leggo il json che mi arriva
 $data = json_decode(file_get_contents("php://input"), true);
 
+//mi aspetto che il metodo per il passaggio dei dati sia in POST
 if( $method == 'POST' ){
+    //casistiche accettate
     switch( $requestUri ){
         case '/db/persona':
             echo json_encode( insertUpdatePersona($data) );
@@ -62,14 +64,14 @@ function insertUpdatePersona( $data ) {
 
     //caso di inserimento
     if ( $personaDTO->getID() == 0 ) {
-        //TODO da gestire l'individuazione di omonimie
-        /*$persone = readAllPersone(); //mi aspetto una lista di PersonaDTO
+        //Individua le omonimie e nel caso ritorna -2
+        $persone = (array)readAllPersone(); //mi aspetto una lista di PersonaDTO
         foreach ($persone as $next) {
             if (strcasecmp($next->getNome(), $personaDTO->getNome() ) === 0 && strcasecmp($next->getCognome(), $personaDTO->getCognome()) === 0) {
                 // Persona già presente in archivio, il messaggio di errore viene trasmesso tramite id della persona (-2)
                 return ['id' => -2];
             }
-        }*/
+        }
         $result = insertPersona($personaDTO);
     } else { // caso update
         $result = updatePersona($personaDTO);
@@ -93,10 +95,9 @@ function insertUpdatePersona( $data ) {
  * @return TransazioneDTO
  */
 function insertTransazione( $data ){
-    $partecipanti = new ArrayObject();
-    foreach ( $data['parteipanti'] as $persona ){
-        $partecipante = new PersonaDTO($persona['id'], $persona['nome'], $persona['cognome'], $persona['ha_pagato'], $persona['ha_partecipato']);
-        $partecipanti->append($partecipante);
+    $partecipanti = [];
+    foreach ( $data['partecipanti'] as $persona ){
+        $partecipanti[] = new PersonaDTO($persona['id'], $persona['nome'], $persona['cognome'], $persona['ha_pagato'], $persona['ha_partecipato']);
     }
     
     $transazioneService = new TransazioneService();
@@ -119,7 +120,6 @@ function insertTransazione( $data ){
  * @return \ArrayObject , lista di personaDTO
  */
 function readAllPersone() {
-    // TODO logica per leggere tabella persone dal db
     $personaService = new PersonaService();
     $p_list = $personaService->getPersone();
     return $p_list;
@@ -132,7 +132,6 @@ function readAllPersone() {
  * @return PersonaDTO|null
  */
 function readPersona($id) {
-    // TODO select * from persona where id = $id ++ fare un count per ha_pagato e ha_partecipato
     $personaService = new PersonaService();
     return $personaService->getPersona($id);
 }
@@ -144,7 +143,6 @@ function readPersona($id) {
  * @return PersonaDTO
  */
 function insertPersona($persona) {
-    // TODO insert persona nel database
     $personaService = new PersonaService();
     $persona->setID( $personaService->insertPersona($persona->getNome(), $persona->getCognome()) );
     return $persona;
@@ -156,7 +154,6 @@ function insertPersona($persona) {
  * @return PersonaDTO|null
  */
 function updatePersona($personaDTO) {
-    //TODO update persona nel database
     $personaService = new PersonaService();
     if( $personaService->updatePersonaGeneralita($personaDTO) ){
         return $personaDTO;
