@@ -49,6 +49,9 @@ if( $method == 'POST' ){
 
             echo json_encode($numericArray);
             break;
+        case '/db/statistiche/ultimatransazione' :
+            echo json_encode( getDataUltimaTransazione() );
+            break;
         default :
             echo json_encode([
                 'message' => 'Metodo non supportato',
@@ -191,4 +194,13 @@ function deletePersona($data){
     $personaService = new PersonaService();
     $id = $data['id'];
     return $personaService->deletePersona( $id );
+}
+
+/**
+ * Recupera la data dell'ultima transazione registrata nel db
+ * @return String, data dell'ultima transazione
+ */
+function getDataUltimaTransazione(){
+    $transazioneService = new TransazioneService();
+    return $transazioneService->getDataUltimaTransazione();
 }

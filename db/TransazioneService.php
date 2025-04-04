@@ -3,7 +3,8 @@
 /**
  * Classe per l'inserimento e modifia di campi a db
  * __construct( $conn )
- * insertPersona( $n_starnuti )
+ * insertTransazione( $data, $pagata_da, $partecipanti )
+ * getDataUltimaTransazione()
  */
 
 require_once 'Db.php';
@@ -51,6 +52,24 @@ class TransazioneService extends Db{
         return $idTransazione;
         
         
+    }
+    
+    
+    public function getDataUltimaTransazione() {
+        $query = "SELECT * FROM transazione ORDER BY data DESC LIMIT 1;";
+        $result = $this->conn->query($query);
+        
+        $res = null;
+        if ($result->num_rows > 0) {
+            // Output dei dati di ogni riga
+            while($row = $result->fetch_assoc()) {
+                $res = $row['data'];
+            }
+        }
+ 
+        // Chiudi connessione
+        $this->conn->close();
+        return $res;
     }
 
         

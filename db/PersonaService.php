@@ -92,7 +92,7 @@ class PersonaService extends Db{
 
         $stmt->close();
     }
-        
+    
     /**
      * Aggiorna nome e cognome di una persona
      * @param type $personaDTO
