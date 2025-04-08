@@ -1,0 +1,44 @@
+CREATE TABLE persona (
+    id_persona INT PRIMARY KEY AUTO_INCREMENT,
+    nome VARCHAR(255) NOT NULL,
+    cognome VARCHAR(255) NOT NULL,
+    ha_pagato INT DEFAULT 0,
+    ha_partecipato INT DEFAULT 0
+);
+
+CREATE TABLE transazione (
+    id_transazione INT PRIMARY KEY AUTO_INCREMENT,
+    data DATETIME NOT NULL,
+    pagata_da INT,
+    FOREIGN KEY (pagata_da) REFERENCES persona(id_persona) ON DELETE SET NULL
+);
+
+CREATE TABLE partecipazione (
+    id_transazione INT,
+    id_persona INT,
+    PRIMARY KEY (id_transazione, id_persona),
+    FOREIGN KEY (id_transazione) REFERENCES transazione(id_transazione) ON DELETE CASCADE,
+    FOREIGN KEY (id_persona) REFERENCES persona(id_persona) ON DELETE CASCADE
+);
+
+DELIMITER //
+CREATE TRIGGER after_insert_partecipazione
+AFTER INSERT ON partecipazione
+FOR EACH ROW
+BEGIN
+    UPDATE persona
+    SET ha_partecipato = ha_partecipato + 1
+    WHERE id_persona = NEW.id_persona;
+END //
+DELIMITER ;
+
+DELIMITER //
+CREATE TRIGGER after_insert_transazione
+AFTER INSERT ON transazione
+FOR EACH ROW
+BEGIN
+    UPDATE persona
+    SET ha_pagato = ha_pagato + 1
+    WHERE id_persona = NEW.pagata_da;
+END//
+DELIMITER ;
