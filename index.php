@@ -75,12 +75,12 @@ if( $method == 'POST' ){
  */
 function insertUpdatePersona( $data ) {
     $result = null;
-    $personaDTO = new PersonaDTO( $data['id'], $data['nome'], $data['cognome'], $data['ha_pagato'], $data['ha_partecipato'] );
+    $personaDTO = new PersonaDTO( $data['id'], $data['nome'], $data['cognome'], $data['ha_pagato'], $data['ha_partecipato'], 0 );
 
     //se ho qualcuno con lo stesso nome e cognome, rifiuto l'inserimetno/modifica
     if( verificaOmonimie($personaDTO) ){
         //ID == -2 è sintomo di errore, il FE deve riconoscerlo
-        return new PersonaDTO(-2, $personaDTO->getNome(), $personaDTO->getCognome(), 0, 0);
+        return new PersonaDTO(-2, $personaDTO->getNome(), $personaDTO->getCognome(), 0, 0, 0);
     }
     //caso di inserimento
     if ( $personaDTO->getID() == 0 ) {
@@ -128,7 +128,7 @@ function verificaOmonimie( $personaDTO ){
 function insertTransazione( $data ){
     $partecipanti = [];
     foreach ( $data['partecipanti'] as $persona ){
-        $partecipanti[] = new PersonaDTO($persona['id'], $persona['nome'], $persona['cognome'], $persona['ha_pagato'], $persona['ha_partecipato']);
+        $partecipanti[] = new PersonaDTO($persona['id'], $persona['nome'], $persona['cognome'], $persona['ha_pagato'], $persona['ha_partecipato'], $persona['caffe_pagati']);
     }
     
     $transazioneService = new TransazioneService();

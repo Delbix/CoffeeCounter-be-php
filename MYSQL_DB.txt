@@ -3,7 +3,8 @@ CREATE TABLE persona (
     nome VARCHAR(255) NOT NULL,
     cognome VARCHAR(255) NOT NULL,
     ha_pagato INT DEFAULT 0,
-    ha_partecipato INT DEFAULT 0
+    ha_partecipato INT DEFAULT 0,
+    caffe_pagati INT DEFAULT 0
 );
 
 CREATE TABLE transazione (
@@ -42,3 +43,26 @@ BEGIN
     WHERE id_persona = NEW.pagata_da;
 END//
 DELIMITER ;
+
+
+DELIMITER $$
+
+CREATE TRIGGER incrementa_caffe_pagati
+AFTER INSERT ON partecipazione
+FOR EACH ROW
+BEGIN
+    DECLARE id_pagatore INT;
+
+    -- Trova chi ha pagato la transazione
+    SELECT pagata_da INTO id_pagatore
+    FROM transazione
+    WHERE id_transazione = NEW.id_transazione;
+
+    -- Aumenta di 1 il campo caffe_pagati del pagatore
+    UPDATE persona
+    SET caffe_pagati = caffe_pagati + 1
+    WHERE id_persona = id_pagatore;
+END$$
+
+DELIMITER ;
+

@@ -31,7 +31,7 @@ class PersonaService extends Db{
      * @return int ID della persona inserita
      */
     public function insertPersona( $nome, $cognome ){
-        $stmt = $this->conn->prepare( "INSERT INTO `persona` (`id_persona`, `nome`, `cognome`, `ha_pagato`, `ha_partecipato`) VALUES (NULL, ?, ?, 0, 0);");
+        $stmt = $this->conn->prepare( "INSERT INTO `persona` (`id_persona`, `nome`, `cognome`, `ha_pagato`, `ha_partecipato`, `caffe_pagati` ) VALUES (NULL, ?, ?, 0, 0, 0);");
         $stmt->bind_param( "ss", $nome, $cognome );
 
         $stmt->execute();
@@ -58,7 +58,7 @@ class PersonaService extends Db{
         if( $nRows > 0){
             // output data of each row
             while($row = $result->fetch_assoc()) {
-                $persona = new PersonaDTO( $row['id_persona'], $row['nome'], $row['cognome'], $row['ha_pagato'], $row['ha_partecipato'] );
+                $persona = new PersonaDTO( $row['id_persona'], $row['nome'], $row['cognome'], $row['ha_pagato'], $row['ha_partecipato'], $row['caffe_pagati'] );
                 $p_list->append($persona);
             }
         }
@@ -80,7 +80,7 @@ class PersonaService extends Db{
         if ($result->num_rows > 0) {
             // Output data of each row
             while($row = $result->fetch_assoc()) {
-                return new PersonaDTO( $row["id_persona"], $row["nome"], $row["cognome"], $row["ha_pagato"], $row["ha_partecipato"] );
+                return new PersonaDTO( $row["id_persona"], $row["nome"], $row["cognome"], $row["ha_pagato"], $row["ha_partecipato"], $row['caffe_pagati'] );
             }
         } else {
             return null;
