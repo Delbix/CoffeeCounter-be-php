@@ -52,6 +52,13 @@ if( $method == 'POST' ){
         case '/db/statistiche/ultimatransazione' :
             echo json_encode( getDataUltimaTransazione() );
             break;
+        //TODO da fare 
+        case '/db/statistiche/transazionePiuPartecipata' :
+            //echo json_encode( gettransazionePiuPartecipata() );
+            break;
+        case '/db/statistiche/caffeBevuti' :
+            echo json_encode( getCaffeBevuti() );
+            break;
         default :
             echo json_encode([
                 'message' => 'Metodo non supportato',
@@ -134,6 +141,7 @@ function insertTransazione( $data ){
                     'status' => 'error'
                 ]);
     }
+    $transazioneService->closeDB();
     
     return $transazioneDTO = new TransazioneDTO( $result, $data['data'], $partecipanti, $data['pagata_da'] );    
 }
@@ -146,6 +154,7 @@ function insertTransazione( $data ){
 function readAllPersone() {
     $personaService = new PersonaService();
     $p_list = $personaService->getPersone();
+    $personaService->closeDB();
     return $p_list;
 }
 
@@ -157,7 +166,9 @@ function readAllPersone() {
  */
 function readPersona($id) {
     $personaService = new PersonaService();
-    return $personaService->getPersona($id);
+    $result = $personaService->getPersona($id);
+    $personaService->closeDB();
+    return $result;
 }
 
  
@@ -169,6 +180,7 @@ function readPersona($id) {
 function insertPersona($persona) {
     $personaService = new PersonaService();
     $persona->setID( $personaService->insertPersona($persona->getNome(), $persona->getCognome()) );
+    $personaService->closeDB();
     return $persona;
 }
 
@@ -180,8 +192,10 @@ function insertPersona($persona) {
 function updatePersona($personaDTO) {
     $personaService = new PersonaService();
     if( $personaService->updatePersonaGeneralita($personaDTO) ){
+        $personaService->closeDB();
         return $personaDTO;
     } 
+    $personaService->closeDB();
     return null;
 }
 
@@ -193,7 +207,9 @@ function updatePersona($personaDTO) {
 function deletePersona($data){
     $personaService = new PersonaService();
     $id = $data['id'];
-    return $personaService->deletePersona( $id );
+    $result = $personaService->deletePersona( $id );
+    $personaService->closeDB();
+    return $result;
 }
 
 /**
@@ -202,5 +218,23 @@ function deletePersona($data){
  */
 function getDataUltimaTransazione(){
     $transazioneService = new TransazioneService();
-    return $transazioneService->getDataUltimaTransazione();
+    $result = $transazioneService->getDataUltimaTransazione();
+    $transazioneService->closeDB();
+    return $result;
+}
+
+/**
+ * Restituisce il numero dei caffe bevuti
+ * - dal primo giorno di utilizzo dell'app
+ * - nell'ultimo mese
+ * - TODO dell'ultima settimana
+ */
+function getCaffeBevuti(){
+    $transazioneService = new TransazioneService();
+    $month = date('m');
+    $result = array( "day0" => $transazioneService->getNumCaffeDayZero(), 
+        "Mese" => $transazioneService->getNumCaffeMonth($month), "Settimana" => $transazioneService->getNumCaffeWeek() );
+    $transazioneService->closeDB();
+    return $result;
+    
 }

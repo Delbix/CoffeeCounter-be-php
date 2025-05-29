@@ -5,6 +5,9 @@
  * __construct( $conn )
  * insertTransazione( $data, $pagata_da, $partecipanti )
  * getDataUltimaTransazione()
+ * getNumCaffeDayZero()
+ * getNumCaffeMonth()
+ * getNumCaffeWeek()
  */
 
 require_once 'Db.php';
@@ -47,8 +50,6 @@ class TransazioneService extends Db{
                 return -2;
             } 
         }
-        
-        $stmt->close();
         return $idTransazione;
         
         
@@ -66,12 +67,68 @@ class TransazioneService extends Db{
                 $res = $row['data'];
             }
         }
- 
-        // Chiudi connessione
-        $this->conn->close();
         return $res;
     }
+    
+    private function getNumCaffe($query) {
+        //TODO non funziona.. capire errore
+        $result = $this->conn->query($query);
 
+        // Controllo del risultato
+        if ($result) {
+            $row = $result->fetch_assoc();
+            $totale = $row['totale_caffe'];
+            return $totale;
+        } else {
+            echo "Errore nella query: " . $this->conn->error;
+        }
+    }
+
+
+    /**
+     * Funzione per ricavare il numero di caffè totali presenti in archivio
+     * @return [Int]
+     */
+    public function getNumCaffeDayZero(){
+        $query = "SELECT COUNT(*) AS totale_caffe FROM `partecipazione` WHERE 1;";
         
+        return $this->getNumCaffe($query);
+    }
+    
+    /**
+     * Funzione per ricavare il numero di caffè presenti in archivio consumati nell'ultimo mese
+     * @return [Int]
+     */
+    public function getNumCaffeMonth($month) {
+        $query = "SELECT COUNT(*) AS totale_caffe FROM partecipazione p JOIN transazione t ON p.id_transazione = t.id_transazione WHERE MONTH(t.data) = ".$month.";";
+        
+        return $this->getNumCaffe($query);
+    }
+    
+    /**
+     * Funzione per ricavare il numero di caffè presenti in archivio consumati nell'ultima settimana
+     * @return [Int]
+     */
+    public function getNumCaffeWeek() {
+        $query = "SELECT 
+            SUM(numero_partecipazioni) AS totale_caffe
+          FROM (
+            SELECT 
+              transazione.id_transazione,
+              COUNT(partecipazione.id_persona) AS numero_partecipazioni
+            FROM 
+              transazione
+            LEFT JOIN 
+              partecipazione ON transazione.id_transazione = partecipazione.id_transazione
+            WHERE 
+              transazione.data >= DATE_SUB(CURDATE(), INTERVAL WEEKDAY(CURDATE()) DAY)
+              AND transazione.data <= NOW()
+            GROUP BY 
+              transazione.id_transazione
+          ) AS subquery;
+          ";
+        
+        return $this->getNumCaffe($query);
+    }
 
 }
