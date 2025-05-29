@@ -41,7 +41,6 @@ class PersonaService extends Db{
             $lastId = $this->conn->insert_id;
             return $lastId;
         }
-        $stmt->close();
     }
 
     /**
@@ -63,9 +62,6 @@ class PersonaService extends Db{
                 $p_list->append($persona);
             }
         }
-        
-       
-        $result->close();
 
         return $p_list; 
     }
@@ -89,8 +85,6 @@ class PersonaService extends Db{
         } else {
             return null;
         }
-
-        $stmt->close();
     }
     
     /**
@@ -109,7 +103,6 @@ class PersonaService extends Db{
         } else {
             return false;
         }
-        $stmt->close();
     }
     
     /**
@@ -127,8 +120,6 @@ class PersonaService extends Db{
         } else {
             return false;
         }
-
-        $stmt->close();
     }
 
 }
