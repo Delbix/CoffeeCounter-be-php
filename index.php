@@ -5,6 +5,7 @@ require './db/TransazioneDTO.php';
 require './db/PersonaService.php';
 require './db/TransazioneService.php';
 require './db/app-init.php';
+require './utils/SendNotification.php';
 
 /**
  * Questo index ha la funzione di analizzare le richieste che arrivano al BE di questo progetto ed instradarle
@@ -30,6 +31,9 @@ $data = json_decode(file_get_contents("php://input"), true);
 if( $method == 'POST' ){
     //casistiche accettate
     switch( $requestUri ){
+        case '/notification':
+            inviaNotificaFCM($data['topic'], $data['titolo'], $data['messaggio']);
+            break;
         case '/db/persona':
             echo json_encode( insertUpdatePersona($data) );
             break;
@@ -75,12 +79,12 @@ if( $method == 'POST' ){
  */
 function insertUpdatePersona( $data ) {
     $result = null;
-    $personaDTO = new PersonaDTO( $data['id'], $data['nome'], $data['cognome'], $data['ha_pagato'], $data['ha_partecipato'], 0 );
+    $personaDTO = new PersonaDTO( $data['id'], $data['nome'], $data['cognome'], $data['ha_pagato'], $data['ha_partecipato'], 0, "" );
 
     //se ho qualcuno con lo stesso nome e cognome, rifiuto l'inserimetno/modifica
     if( verificaOmonimie($personaDTO) ){
         //ID == -2 è sintomo di errore, il FE deve riconoscerlo
-        return new PersonaDTO(-2, $personaDTO->getNome(), $personaDTO->getCognome(), 0, 0, 0);
+        return new PersonaDTO(-2, $personaDTO->getNome(), $personaDTO->getCognome(), 0, 0, 0, "");
     }
     //caso di inserimento
     if ( $personaDTO->getID() == 0 ) {
@@ -128,7 +132,7 @@ function verificaOmonimie( $personaDTO ){
 function insertTransazione( $data ){
     $partecipanti = [];
     foreach ( $data['partecipanti'] as $persona ){
-        $partecipanti[] = new PersonaDTO($persona['id'], $persona['nome'], $persona['cognome'], $persona['ha_pagato'], $persona['ha_partecipato'], $persona['caffe_pagati']);
+        $partecipanti[] = new PersonaDTO($persona['id'], $persona['nome'], $persona['cognome'], $persona['ha_pagato'], $persona['ha_partecipato'], $persona['caffe_pagati'], $persona['gruppo']);
     }
     
     $transazioneService = new TransazioneService();
@@ -179,7 +183,7 @@ function readPersona($id) {
  */
 function insertPersona($persona) {
     $personaService = new PersonaService();
-    $persona->setID( $personaService->insertPersona($persona->getNome(), $persona->getCognome()) );
+    $persona->setID( $personaService->insertPersona($persona->getNome(), $persona->getCognome(), $persona->getGruppo()) );
     $personaService->closeDB();
     return $persona;
 }
