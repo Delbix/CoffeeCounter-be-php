@@ -7,15 +7,17 @@ class PersonaDTO implements JsonSerializable{
     private $ha_pagato; // int
     private $ha_partecipato; // int, numero di transazioni pagate
     private $caffe_pagati; //int
+    private $gruppo; //String
 
 
-    public function __construct( $id_persona, $nome, $cognome, $ha_pagato, $ha_partecipato, $caffe_pagati ){
+    public function __construct( $id_persona, $nome, $cognome, $ha_pagato, $ha_partecipato, $caffe_pagati, $gruppo ){
         $this->id = $id_persona;
         $this->nome = $nome;
         $this->cognome = $cognome;
         $this->ha_pagato = $ha_pagato;
         $this->ha_partecipato = $ha_partecipato;
         $this->caffe_pagati = $caffe_pagati;
+        $this->gruppo = $gruppo;
     }
     
     public function jsonSerialize() {
@@ -26,6 +28,7 @@ class PersonaDTO implements JsonSerializable{
             'ha_pagato' => $this->ha_pagato,
             'ha_partecipato' => $this->ha_partecipato,
             'caffe_pagati' => $this->caffe_pagati,
+            'gruppo' => $this->gruppo,
         ];
     }
     
@@ -76,5 +79,13 @@ class PersonaDTO implements JsonSerializable{
 
     public function setCaffePagati($caffe_pagati) {
         $this->caffe_pagati = $caffe_pagati;
+    }
+    
+    public function getGruppo() {
+        return $this->gruppo;
+    }
+
+    public function setGruppo($gruppo) {
+        $this->gruppo = $gruppo;
     }
 }

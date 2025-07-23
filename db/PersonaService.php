@@ -12,6 +12,7 @@
 
 require_once 'Db.php';
 
+//TODO modifica sull'attributo "gruppo" non ancora on-line. Ma gia presente sul db!!
 class PersonaService extends Db{
     /**
      * Instanzio la classe con i parametri di connessione
@@ -30,9 +31,9 @@ class PersonaService extends Db{
      * @param String $cognome
      * @return int ID della persona inserita
      */
-    public function insertPersona( $nome, $cognome ){
-        $stmt = $this->conn->prepare( "INSERT INTO `persona` (`id_persona`, `nome`, `cognome`, `ha_pagato`, `ha_partecipato`, `caffe_pagati` ) VALUES (NULL, ?, ?, 0, 0, 0);");
-        $stmt->bind_param( "ss", $nome, $cognome );
+    public function insertPersona( $nome, $cognome, $gruppo ){
+        $stmt = $this->conn->prepare( "INSERT INTO `persona` (`id_persona`, `nome`, `cognome`, `ha_pagato`, `ha_partecipato`, `caffe_pagati`, `gruppo` ) VALUES (NULL, ?, ?, 0, 0, 0, ?);");
+        $stmt->bind_param( "sss", $nome, $cognome, $gruppo );
 
         $stmt->execute();
         if ( $stmt->error != '' ){
@@ -58,7 +59,7 @@ class PersonaService extends Db{
         if( $nRows > 0){
             // output data of each row
             while($row = $result->fetch_assoc()) {
-                $persona = new PersonaDTO( $row['id_persona'], $row['nome'], $row['cognome'], $row['ha_pagato'], $row['ha_partecipato'], $row['caffe_pagati'] );
+                $persona = new PersonaDTO( $row['id_persona'], $row['nome'], $row['cognome'], $row['ha_pagato'], $row['ha_partecipato'], $row['caffe_pagati'], $row['gruppo'] );
                 $p_list->append($persona);
             }
         }
@@ -80,7 +81,7 @@ class PersonaService extends Db{
         if ($result->num_rows > 0) {
             // Output data of each row
             while($row = $result->fetch_assoc()) {
-                return new PersonaDTO( $row["id_persona"], $row["nome"], $row["cognome"], $row["ha_pagato"], $row["ha_partecipato"], $row['caffe_pagati'] );
+                return new PersonaDTO( $row["id_persona"], $row["nome"], $row["cognome"], $row["ha_pagato"], $row["ha_partecipato"], $row['caffe_pagati'], $row['gruppo'] );
             }
         } else {
             return null;

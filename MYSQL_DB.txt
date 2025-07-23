@@ -4,7 +4,8 @@ CREATE TABLE persona (
     cognome VARCHAR(255) NOT NULL,
     ha_pagato INT DEFAULT 0,
     ha_partecipato INT DEFAULT 0,
-    caffe_pagati INT DEFAULT 0
+    caffe_pagati INT DEFAULT 0,
+    gruppo VARCHAR(255) NOT NULL DEFAULT ''
 );
 
 CREATE TABLE transazione (
